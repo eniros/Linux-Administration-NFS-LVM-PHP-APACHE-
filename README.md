@@ -113,5 +113,6 @@ Create in MySQL a new admin user with username and password
  
   Insert new user into the database (You can also do this by editing the tooling-db.sql script appropriately.) (INSERT INTO ‘users’ (’id’, ‘username’, ‘password’, ‘email’, ‘user_type’, ‘status’) VALUES -> (1, ‘myuser’, ‘5f4dcc3b5aa765d61d8327deb882cf99’, ‘user@mail.com’, ‘admin’, ‘1’);)
 
+<img width="954" alt="Screenshot 2022-12-02 at 00 10 55" src="https://user-images.githubusercontent.com/61475969/205185575-6facde40-cba7-4a33-81d7-c9566c646fcc.png">
 
   
