@@ -9,26 +9,27 @@ Create 3 logical volumes
 <img width="570" alt="Screenshot 2022-12-01 at 21 30 21" src="https://user-images.githubusercontent.com/61475969/205163242-fbc36475-7a26-4d79-b25e-2d387dedfc14.png">
 
 Change file format to xfs with the command;
-sudo lvcreate -n lv-apps -L 9G webdata-vg 
+```sudo lvcreate -n lv-apps -L 9G webdata-vg ```
 <img width="570" alt="Screenshot 2022-12-01 at 21 34 38" src="https://user-images.githubusercontent.com/61475969/205163983-2f1c02b5-39f2-4904-b45b-8d92869e32bf.png">
 
 Create mount directories
 
-sudo mkdir /mnt/apps
+```sudo mkdir /mnt/apps```
 
 <img width="570" alt="Screenshot 2022-12-01 at 21 37 08" src="https://user-images.githubusercontent.com/61475969/205164277-50f1144c-e33e-4929-b705-c7cebb7d0517.png">
 
 Mount Volumes into directories
-sudo mount /dev/webdata-vg/lv-apps /mnt/apps
+```sudo mount /dev/webdata-vg/lv-apps /mnt/apps```
 
 <img width="570" alt="Screenshot 2022-12-01 at 21 39 33" src="https://user-images.githubusercontent.com/61475969/205164656-6f0e2926-1d93-4180-bea8-6477bafe5ba4.png">
 
 Install NFS server and configure it to start on reboot by running the following commands;
 
-sudo apt-get update
-sudo apt install nfs-kernel-server
-sudo systemctl enable nfs-server.service
-sudo systemctl status nfs-server.service
+```sudo apt-get update```
+```sudo apt install nfs-kernel-server```
+```sudo systemctl enable nfs-server.service```
+```sudo systemctl status nfs-server.service```
+
 <img width="570" alt="Screenshot 2022-12-01 at 21 46 03" src="https://user-images.githubusercontent.com/61475969/205165724-bfb949ed-1d69-428b-ad98-27c3515e2ba1.png">
 
 Step 2 - Launch the DB Server
@@ -44,17 +45,17 @@ Export the mounts for webservers subnet cidr to connect as clients. These webser
 
 
  Set up permission that will allow our Web servers to read, write and execute files on NFS by running the commands;
- sudo chmod -R 777 /mnt/apps
-sudo chmod -R 777 /mnt/logs
-sudo chmod -R 777 /mnt/opt
+```sudo chmod -R 777 /mnt/apps```
+```sudo chmod -R 777 /mnt/logs```
+```sudo chmod -R 777 /mnt/opt```
 
-sudo systemctl restart nfs-server.service
+```sudo systemctl restart nfs-server.service```
 
 <img width="570" alt="Screenshot 2022-12-01 at 22 15 08" src="https://user-images.githubusercontent.com/61475969/205170524-2f19e64a-a953-41fa-a9f5-7035e21921ac.png">
 
  Configure access to NFS for clients within the same subnet (example of Subnet CIDR – 172.31.32.0/20 ) by editing the config file
  
- sudo vi /etc/exports
+```sudo vi /etc/exports```
 /mnt/apps <Subnet-CIDR>(rw,sync,no_all_squash,no_root_squash)
 /mnt/logs <Subnet-CIDR>(rw,sync,no_all_squash,no_root_squash)
 /mnt/opt <Subnet-CIDR>(rw,sync,no_all_squash,no_root_squash)
@@ -62,11 +63,11 @@ sudo systemctl restart nfs-server.service
 <img width="570" alt="Screenshot 2022-12-01 at 22 25 18" src="https://user-images.githubusercontent.com/61475969/205172199-ffa4fa03-63a7-486e-a820-32ca397472ff.png">
 
  Export the changes made by running the command;
- sudo exportfs -arv
+ ```sudo exportfs -arv```
  
  Check which port is used by NFS by running the command (and open it using Security Groups -add new Inbound Rule -on the NFS server)
   
- rpcinfo -p | grep nfs
+``` rpcinfo -p | grep nfs```
   
  <img width="570" alt="Screenshot 2022-12-01 at 22 33 03" src="https://user-images.githubusercontent.com/61475969/205173236-446d85cf-eec7-49e8-8013-7bf44f02a986.png">
   
@@ -77,25 +78,24 @@ sudo systemctl restart nfs-server.service
  
  Launch an EC2 instance (ubuntu) to server as the nfs client
  Install the NFS Client by running the command:
-  sudo apt install nfs-common
+  ```sudo apt install nfs-common```
 
   <img width="563" alt="Screenshot 2022-12-01 at 22 59 00" src="https://user-images.githubusercontent.com/61475969/205176868-8d3ead41-c7a7-463c-b177-cf27bf2c77e0.png">
 
  Mount /var/www and target the NFS server's exports for apps:
- sudo mount -t nfs -o rw,nosuid 44.202.28.61:/mnt/apps /var/www
+ ```sudo mount -t nfs -o rw,nosuid 44.202.28.61:/mnt/apps /var/www```
   
   
   Verify that the mount was successful and also update the etc/fstab file to make sure the mount stays intact after reboot.
-  df -h sudo vi /etc/fstab :/mnt/apps /var/www nfs defaults 0 0
+  ```df -h sudo vi /etc/fstab :/mnt/apps /var/www nfs defaults 0 0```
   
- ****add image
   
   Install Remi’s repository, Apache,PHP and its dependencies
   
 Verify that Apache files and directories are available on the Web Server in /var/www and also on the NFS server in /mnt/apps.
 You can verify by creating a file on webserver 1 and check webserver 2 if its available.
   
-sudo mount -t nfs -o rw,nosuid :/mnt/logs /var/log
+```sudo mount -t nfs -o rw,nosuid :/mnt/logs /var/log```
   
 Also update the etc/fstab file also on each webservers
 
